@@ -14,7 +14,7 @@ from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.tools.render import format_tool_to_openai_function
 
 from croptalk.prompts_agent import agent_system_message_short
-from croptalk.tools import tools
+from croptalk.tools import tools_doc_retrieval
 
 from dotenv import load_dotenv
 load_dotenv('secrets/.env.secret')
@@ -91,4 +91,4 @@ def initialize_agent_executor(model, tools, memory_key="chat_history", memory_mo
 
 
 model_name = os.getenv("MODEL_NAME")
-model = initialize_agent_executor(model=model_name, tools=tools)
+model = initialize_agent_executor(model=model_name, tools=tools_doc_retrieval)

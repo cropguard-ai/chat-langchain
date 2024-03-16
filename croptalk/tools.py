@@ -8,8 +8,27 @@ from langchain.tools import tool
 
 from croptalk.load_data import SOB
 
+from langchain.tools import StructuredTool
+from croptalk.retriever import (RetrieverInput,
+                                retriever_with_filter_each_category,
+                                retriever_with_filter)
+
+
 load_dotenv("secrets/.env.secret")
 
+doc_search_each_category = StructuredTool.from_function(
+    name="doc_search_each_category",
+    description="Searches and returns information in every doc category.",
+    func=retriever_with_filter_each_category,
+    args_schema=RetrieverInput,
+)
+
+doc_search_any_category = StructuredTool.from_function(
+    name="doc_search_any_category",
+    description="Searches and returns information given the filters. Disregards the doc category.",
+    func=retriever_with_filter,
+    args_schema=RetrieverInput,
+)
 
 @tool("get_SOB_metrics")
 def get_sob_metrics_for_crop_county(state_abbreviation: str, county_name: str, commodity_name: str,
@@ -86,3 +105,4 @@ def get_wfrp_commodities(reinsurance_yr: str, state_code: str, county_code: str)
 
 
 tools = [get_wfrp_commodities, get_sob_metrics_for_crop_county]
+tools_doc_retrieval = [doc_search_each_category]
