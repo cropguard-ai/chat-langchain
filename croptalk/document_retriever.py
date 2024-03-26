@@ -1,5 +1,9 @@
+import os
+from io import BytesIO
 from typing import List, Optional
 
+import PyPDF2
+import boto3
 from dotenv import load_dotenv
 from weaviate.collections.classes.internal import QueryReturn
 
@@ -31,14 +35,14 @@ class DocumentRetriever:
         self.collection = get_client_collection(self.collection_name)[1]
 
     def get_documents(
-        self,
-        query: str,
-        doc_category: Optional[str] = None,
-        commodity: Optional[str] = None,
-        county: Optional[str] = None,
-        state: Optional[str] = None,
-        top_k: int = 3,
-        include_common_docs: bool = True,
+            self,
+            query: str,
+            doc_category: Optional[str] = None,
+            commodity: Optional[str] = None,
+            county: Optional[str] = None,
+            state: Optional[str] = None,
+            top_k: int = 3,
+            include_common_docs: bool = True,
     ) -> List[str]:
         """
         Args:
@@ -75,7 +79,25 @@ class DocumentRetriever:
         return formatted_docs
 
     @staticmethod
-    def _format_query_response(query_response: QueryReturn) -> List[str]:
+    def read_pdf_from_s3(bucket_name, file_key):
+        # Initialize S3 client
+        s3 = boto3.client('s3',
+                          aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+                          aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"])
+
+        # Download PDF file from S3
+        response = s3.get_object(Bucket=bucket_name, Key=file_key)
+        pdf_data = response['Body'].read()
+
+        # Read text content from the PDF
+        pdf_reader = PyPDF2.PdfReader(BytesIO(pdf_data))
+        text_content = ''
+        for page_num in range(len(pdf_reader.pages)):
+            text_content += pdf_reader.pages[page_num].extract_text()
+
+        return text_content
+
+    def _format_query_response(self, query_response: QueryReturn) -> List[str]:
         """
         Args:
             query_response: weaviate query response
@@ -83,9 +105,10 @@ class DocumentRetriever:
         Returns:
             list of retrieved and formatted documents, equivalent to provided query response
         """
-        return [
+
+        response_objects = [
             f"<doc"
-            f" id='{i+1}'"
+            f" id='{i + 1}'"
             f" title='{doc.properties['title']}'"
             f" page_id='{doc.properties['page']}'"
             f" doc_category='{doc.properties['doc_category']}'"
@@ -94,6 +117,12 @@ class DocumentRetriever:
             f" county='{doc.properties['county']}'"
             f" s3_key='{doc.properties['s3_key']}'"
             f" url='https://croptalk-spoi.s3.us-east-2.amazonaws.com/{doc.properties['s3_key']}'"
-            f">{doc.properties['content']}</doc>"
             for i, doc in enumerate(query_response.objects)
         ]
+
+        for i, doc in enumerate(query_response.objects):
+            if doc.properties["doc_category"] == "SP":
+                response_objects[i] += self.read_pdf_from_s3("croptalk-spoi", doc.properties['s3_key'])
+            else:
+                response_objects[i] += f">{doc.properties['content']}</doc>"
+        return response_objects
