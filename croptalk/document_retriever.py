@@ -119,7 +119,8 @@ class DocumentRetriever:
 
     def _get_index_from_unique_sp_s3_keys(self, query_response: QueryReturn) -> List[int]:
         # getting list of duplicated s3 keys for doc which are SP
-        s3_keys = [(i, doc) for i, doc in enumerate(query_response.objects) if doc.properties["doc_category"] == "SP"]
+        s3_keys = [(i, doc.properties["s3_key"]) for i, doc in enumerate(query_response.objects) if
+                   doc.properties["doc_category"] == "SP"]
         duplicated_sp_idx = self._find_duplicates_indices(s3_keys)
 
         # get all unique indexes without SP duplicates
