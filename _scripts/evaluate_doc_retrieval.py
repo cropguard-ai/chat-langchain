@@ -218,6 +218,7 @@ if __name__ == "__main__":
     logger.info("Loading model")
     if args.use_model_llm:
         from croptalk.model_llm import model
+
         memory = None
     else:
         from croptalk.model_openai_functions import model, memory
