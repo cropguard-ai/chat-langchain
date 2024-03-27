@@ -132,13 +132,11 @@ class DocumentRetriever:
             doc_property: properties attribute from query response objects
         Returns: formatted str
         """
-        print("CLEANING CONTENT")
         if doc_property["doc_category"] == "SP":
             content = self._read_pdf_from_s3("croptalk-spoi", doc_property['s3_key'])
             content = self._clean_sp_content(content)
         else:
             content = doc_property['content']
-        print(content)
         return f">{content}</doc>"
 
     def _format_query_response(self, query_response: QueryReturn) -> List[str]:
@@ -151,8 +149,6 @@ class DocumentRetriever:
         """
 
         unique_index = self._get_index_from_unique_sp_s3_keys(query_response)
-
-        print("UNIQUE INDEX", unique_index)
 
         response_objects = [
             f"<doc"
@@ -168,7 +164,5 @@ class DocumentRetriever:
             + self._get_content(doc.properties)
             for i, doc in enumerate(query_response.objects) if i in unique_index
         ]
-
-        print("RESPONSE OBJECT", response_objects)
 
         return response_objects
