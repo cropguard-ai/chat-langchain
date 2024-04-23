@@ -103,6 +103,7 @@ const createAnswerElements = (
   elements.push(
     <span
       key={`content:${prevIndex}`}
+      className="message-bubble"
       dangerouslySetInnerHTML={{ __html: content.slice(prevIndex) }}
     ></span>,
   );
@@ -115,6 +116,7 @@ export function ChatMessageBubble(props: {
   isMostRecent: boolean;
   messageCompleted: boolean;
 }) {
+  console.log({ message: props.message });
   const { role, content, runId } = props.message;
   const isUser = role === "user";
   const [isLoading, setIsLoading] = useState(false);
