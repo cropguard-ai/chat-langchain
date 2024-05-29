@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
 import { EmptyState } from "../components/EmptyState";
@@ -43,6 +43,8 @@ export function ChatWindow(props: {
   const [chatHistory, setChatHistory] = useState<
     { human: string; ai: string }[]
   >([]);
+
+  const year = useMemo(() => new Date().getFullYear(), []);
 
   const sendMessage = async (message?: string) => {
     if (messageContainerRef.current) {
@@ -316,7 +318,7 @@ export function ChatWindow(props: {
             className="text-gray-footer flex items-center"
           >
             {/* <img src="/images/github-mark.svg" className="h-4 mr-1" /> */}
-            <span>CropGuard Inc, 2023</span>
+            <span>CropGuard Inc, {year}</span>
           </a>
         </footer>
       ) : (
