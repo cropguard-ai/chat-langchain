@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { EmptyState } from "../components/EmptyState";
 import { ChatMessageBubble, Message } from "../components/ChatMessageBubble";
 import { AutoResizeTextarea } from "./AutoResizeTextarea";
+import Image from "next/image";
 import { marked } from "marked";
 import { Renderer } from "marked";
 import hljs from "highlight.js";
@@ -21,14 +22,6 @@ import {
   InputGroup,
   InputRightElement,
   Spinner,
-  Modal,
-  Button,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
 } from "@chakra-ui/react";
 import { ArrowUpIcon, CloseIcon } from "@chakra-ui/icons";
 import { Source } from "./SourceBubble";
@@ -50,8 +43,6 @@ export function ChatWindow(props: {
   const [chatHistory, setChatHistory] = useState<
     { human: string; ai: string }[]
   >([]);
-
-  const { placeholder, titleText = "An LLM" } = props;
 
   const sendMessage = async (message?: string) => {
     if (messageContainerRef.current) {
@@ -230,9 +221,14 @@ export function ChatWindow(props: {
     <div className="flex flex-col items-center p-8 rounded grow max-h-full">
       {messages.length > 0 && (
         <Flex direction={"column"} alignItems={"center"} paddingBottom={"20px"}>
-          <Heading fontSize="2xl" fontWeight={"medium"} mb={1} color={"white"}>
-            {titleText}
-          </Heading>
+          <Image
+            unoptimized
+            src="/images/logo-croptalk.svg"
+            alt="croptalk"
+            className="h-9 mr-1"
+            width={152}
+            height={36}
+          />
           <Heading fontSize="md" fontWeight={"normal"} mb={1} color={"white"}>
             We appreciate feedback!
           </Heading>

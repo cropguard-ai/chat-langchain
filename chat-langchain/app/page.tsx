@@ -10,7 +10,6 @@ export default function Home() {
     <ChakraProvider>
       <ToastContainer />
       <ChatWindow
-        titleText="CropTalk 🌿"
         placeholder="Can I insure my small organic farm?"
       ></ChatWindow>
     </ChakraProvider>
