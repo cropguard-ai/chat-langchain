@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import Image from "next/image";
 import { EmptyState } from "../components/EmptyState";
 import { ChatMessageBubble, Message } from "../components/ChatMessageBubble";
 import { AutoResizeTextarea } from "./AutoResizeTextarea";
@@ -21,14 +22,6 @@ import {
   InputGroup,
   InputRightElement,
   Spinner,
-  Modal,
-  Button,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
 } from "@chakra-ui/react";
 import { ArrowUpIcon, CloseIcon } from "@chakra-ui/icons";
 import { Source } from "./SourceBubble";
@@ -51,7 +44,7 @@ export function ChatWindow(props: {
     { human: string; ai: string }[]
   >([]);
 
-  const { placeholder, titleText = "An LLM" } = props;
+  const year = useMemo(() => new Date().getFullYear(), []);
 
   const sendMessage = async (message?: string) => {
     if (messageContainerRef.current) {
@@ -230,9 +223,14 @@ export function ChatWindow(props: {
     <div className="flex flex-col items-center p-8 rounded grow max-h-full">
       {messages.length > 0 && (
         <Flex direction={"column"} alignItems={"center"} paddingBottom={"20px"}>
-          <Heading fontSize="2xl" fontWeight={"medium"} mb={1} color={"white"}>
-            {titleText}
-          </Heading>
+          <Image
+            unoptimized
+            src="/images/logo-croptalk.svg"
+            alt="croptalk"
+            className="h-9 mr-1"
+            width={152}
+            height={36}
+          />
           <Heading fontSize="md" fontWeight={"normal"} mb={1} color={"white"}>
             We appreciate feedback!
           </Heading>
@@ -320,7 +318,7 @@ export function ChatWindow(props: {
             className="text-gray-footer flex items-center"
           >
             {/* <img src="/images/github-mark.svg" className="h-4 mr-1" /> */}
-            <span>CropGuard Inc, 2023</span>
+            <span>CropGuard Inc, {year}</span>
           </a>
         </footer>
       ) : (
