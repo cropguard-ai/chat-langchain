@@ -1,12 +1,6 @@
 import { MouseEvent } from "react";
-import {
-  Heading,
-  Link,
-  Card,
-  CardHeader,
-  Flex,
-  Spacer,
-} from "@chakra-ui/react";
+import Image from "next/image";
+import { Heading, Card, CardHeader, Flex, Spacer } from "@chakra-ui/react";
 
 export function EmptyState(props: { onChoice: (question: string) => any }) {
   const handleClick = (e: MouseEvent) => {
@@ -14,9 +8,14 @@ export function EmptyState(props: { onChoice: (question: string) => any }) {
   };
   return (
     <div className="rounded flex flex-col items-center max-w-full md:p-8">
-      <Heading fontSize="3xl" fontWeight={"medium"} mb={1} color={"white"}>
-        CropTalk 🌿
-      </Heading>
+      <Image
+        unoptimized
+        src="/images/logo-croptalk.svg"
+        alt="croptalk"
+        className="h-9 mr-1"
+        width={152}
+        height={36}
+      />
       <Heading
         fontSize="xl"
         fontWeight={"normal"}
@@ -87,7 +86,8 @@ export function EmptyState(props: { onChoice: (question: string) => any }) {
               color={"gray.200"}
               textAlign={"center"}
             >
-              What is the difference between EU and OU and what are the benefits of each?
+              What is the difference between EU and OU and what are the benefits
+              of each?
             </Heading>
           </CardHeader>
         </Card>
@@ -108,7 +108,8 @@ export function EmptyState(props: { onChoice: (question: string) => any }) {
               color={"gray.200"}
               textAlign={"center"}
             >
-              Write me a three-part social media post series about the benefits of the fresh option in the Apple APH policy
+              Write me a three-part social media post series about the benefits
+              of the fresh option in the Apple APH policy
             </Heading>
           </CardHeader>
         </Card>
