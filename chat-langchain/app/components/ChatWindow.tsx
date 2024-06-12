@@ -213,8 +213,9 @@ export function ChatWindow(props: {
         const parts = link.href.split(".");
         if (parts.length > 0) {
           const ext = parts.pop();
-          if (ext && ext.startsWith("pdf"))
+          if (ext && ext.startsWith("pdf")) {
             link.setAttribute("target", "_blank");
+          }
         }
       }
     });
