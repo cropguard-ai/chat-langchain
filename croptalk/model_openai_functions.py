@@ -34,14 +34,14 @@ class OpenAIAgentModelFactory:
     """
 
     def __init__(
-        self,
-        llm_model_name: str,
-        document_retriever: DocumentRetriever,
-        tools: List[StructuredTool],
-        top_k: int,
-        memory_key: str = "chat_history",
-        input_key: str = "question",
-        output_key: str = "output",
+            self,
+            llm_model_name: str,
+            document_retriever: DocumentRetriever,
+            tools: List[StructuredTool],
+            top_k: int,
+            memory_key: str = "chat_history",
+            input_key: str = "question",
+            output_key: str = "output",
     ) -> None:
         """
         Args:
@@ -82,7 +82,8 @@ class OpenAIAgentModelFactory:
                     CropGuard uses cutting-edge AI to help crop insurance agents and farmers select
                     optimal crop insurance policies tailored to growers' unique risk profiles.
                     You provide accurate results based on retrieved docs.
-                    ALWAYS cite the relevant sources using this format : ( Document : title, page : page_id , url : link  )""",
+                    ALWAYS cite the relevant sources using this format : ( Document : title, page : page_id , 
+                    url : url#page=page_id  )""",
                 ),
                 MessagesPlaceholder(self.memory_key, optional=True),
                 ("human", f"{{{self.input_key}}}"),
@@ -90,16 +91,16 @@ class OpenAIAgentModelFactory:
             ]
         )
         agent = (
-            RunnablePassthrough.assign(
-                agent_scratchpad=lambda x: format_to_openai_function_messages(
-                    x["intermediate_steps"]
-                ),
-                chat_history=lambda x: x.get(self.memory_key, []),
-                input=itemgetter(self.input_key),
-            )
-            | prompt
-            | llm_with_tools
-            | OpenAIFunctionsAgentOutputParser()
+                RunnablePassthrough.assign(
+                    agent_scratchpad=lambda x: format_to_openai_function_messages(
+                        x["intermediate_steps"]
+                    ),
+                    chat_history=lambda x: x.get(self.memory_key, []),
+                    input=itemgetter(self.input_key),
+                )
+                | prompt
+                | llm_with_tools
+                | OpenAIFunctionsAgentOutputParser()
         )
 
         if no_memory:
@@ -113,22 +114,23 @@ class OpenAIAgentModelFactory:
             )
 
         agent_executor = AgentExecutor(
-                agent=agent,
-                tools=tools,
-                memory=memory,
-                verbose=True,
-                max_iterations=10,
-                return_intermediate_steps=True, # we always want to return the intermediate steps to see them in the run trace
-            ).with_config(run_name="AgentExecutor")
-        
+            agent=agent,
+            tools=tools,
+            memory=memory,
+            verbose=True,
+            max_iterations=10,
+            return_intermediate_steps=True,
+            # we always want to return the intermediate steps to see them in the run trace
+        ).with_config(run_name="AgentExecutor")
+
         if not convert_response_chain_to_str:
             # Skip the last step of converting the response to a string 
             # to have access to the chain as an object, i.e. retrieve the intermediate steps
             return agent_executor, memory
 
         agent_executor_parsed = (
-            agent_executor
-            | itemgetter(self.output_key)
+                agent_executor
+                | itemgetter(self.output_key)
         ).with_config(run_name="AgentExecutorParsed")
 
         return agent_executor_parsed, memory
@@ -196,5 +198,6 @@ def initialize_model(convert_response_chain_to_str=True, no_memory=False):
         output_key="output",
     ).get_model(convert_response_chain_to_str=convert_response_chain_to_str, no_memory=no_memory)
     return model, memory
+
 
 model, memory = initialize_model()
