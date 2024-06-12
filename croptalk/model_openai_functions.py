@@ -34,14 +34,14 @@ class OpenAIAgentModelFactory:
     """
 
     def __init__(
-            self,
-            llm_model_name: str,
-            document_retriever: DocumentRetriever,
-            tools: List[StructuredTool],
-            top_k: int,
-            memory_key: str = "chat_history",
-            input_key: str = "question",
-            output_key: str = "output",
+        self,
+        llm_model_name: str,
+        document_retriever: DocumentRetriever,
+        tools: List[StructuredTool],
+        top_k: int,
+        memory_key: str = "chat_history",
+        input_key: str = "question",
+        output_key: str = "output",
     ) -> None:
         """
         Args:
@@ -91,16 +91,16 @@ class OpenAIAgentModelFactory:
             ]
         )
         agent = (
-                RunnablePassthrough.assign(
-                    agent_scratchpad=lambda x: format_to_openai_function_messages(
-                        x["intermediate_steps"]
-                    ),
-                    chat_history=lambda x: x.get(self.memory_key, []),
-                    input=itemgetter(self.input_key),
-                )
-                | prompt
-                | llm_with_tools
-                | OpenAIFunctionsAgentOutputParser()
+            RunnablePassthrough.assign(
+                agent_scratchpad=lambda x: format_to_openai_function_messages(
+                    x["intermediate_steps"]
+                ),
+                chat_history=lambda x: x.get(self.memory_key, []),
+                input=itemgetter(self.input_key),
+            )
+            | prompt
+            | llm_with_tools
+            | OpenAIFunctionsAgentOutputParser()
         )
 
         if no_memory:
@@ -114,14 +114,14 @@ class OpenAIAgentModelFactory:
             )
 
         agent_executor = AgentExecutor(
-            agent=agent,
-            tools=tools,
-            memory=memory,
-            verbose=True,
-            max_iterations=10,
-            return_intermediate_steps=True,
-            # we always want to return the intermediate steps to see them in the run trace
-        ).with_config(run_name="AgentExecutor")
+                agent=agent,
+                tools=tools,
+                memory=memory,
+                verbose=True,
+                max_iterations=10,
+                return_intermediate_steps=True,
+                # we always want to return the intermediate steps to see them in the run trace
+            ).with_config(run_name="AgentExecutor")
 
         if not convert_response_chain_to_str:
             # Skip the last step of converting the response to a string 
@@ -129,8 +129,8 @@ class OpenAIAgentModelFactory:
             return agent_executor, memory
 
         agent_executor_parsed = (
-                agent_executor
-                | itemgetter(self.output_key)
+            agent_executor
+            | itemgetter(self.output_key)
         ).with_config(run_name="AgentExecutorParsed")
 
         return agent_executor_parsed, memory

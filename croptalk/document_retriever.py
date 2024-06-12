@@ -31,14 +31,14 @@ class DocumentRetriever:
         self.collection = get_client_collection(self.collection_name)[1]
 
     def get_documents(
-            self,
-            query: str,
-            doc_category: Optional[str] = None,
-            commodity: Optional[str] = None,
-            county: Optional[str] = None,
-            state: Optional[str] = None,
-            top_k: int = 3,
-            include_common_docs: bool = True,
+        self,
+        query: str,
+        doc_category: Optional[str] = None,
+        commodity: Optional[str] = None,
+        county: Optional[str] = None,
+        state: Optional[str] = None,
+        top_k: int = 3,
+        include_common_docs: bool = True,
     ) -> List[str]:
         """
         Args:
