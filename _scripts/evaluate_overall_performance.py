@@ -1,4 +1,5 @@
 import os
+import time
 
 os.chdir('/app')
 
@@ -18,10 +19,17 @@ load_dotenv('secrets/.env.shared')
 DATASET_NAME = "sp-cp-bp-cih-sql-89q"
 OUTPUT_DIR = "data/experiment_results"
 
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+    print(f"Directory '{OUTPUT_DIR}' created.")
+else:
+    print(f"Directory '{OUTPUT_DIR}' already exists.")
+
 # Initialize a model that will be used for evaluation of the qa
 eval_llm = ChatOpenAI(model="gpt-3.5-turbo", streaming=False, temperature=0.0)
 
 client = Client()
+
 
 # == CORRECTNESS EVALUATOR ==
 def retrieve_question_answer(run: Run, example: Example) -> dict:
@@ -32,11 +40,13 @@ def retrieve_question_answer(run: Run, example: Example) -> dict:
     }
     return parsed
 
+
 qa_evaluator = LangChainStringEvaluator(
     "qa",
     prepare_data=retrieve_question_answer,
     config={"llm": eval_llm},
 )
+
 
 # == DOC RETRIEVAL EVALUATOR ==
 def doc_evaluator(run: Run, example: Example) -> dict:
@@ -46,11 +56,11 @@ def doc_evaluator(run: Run, example: Example) -> dict:
     return {"score": expected.lower() in predicted.lower() if expected else None,
             "key": "contains_doc"}
 
+
 # == TOOL EVALUATOR ==
 def tool_evaluator(run: Run, example: Example) -> dict:
-    
     # Accessing the `intermediate_steps`
-    #TODO: Parse the intermediate steps into a list of objects
+    # TODO: Parse the intermediate steps into a list of objects
     # For now, we just convert the intermediate steps to a string
     intermediate_steps = run.outputs.get('intermediate_steps')
     intermediate_steps_str = str(intermediate_steps)
@@ -64,17 +74,20 @@ def tool_evaluator(run: Run, example: Example) -> dict:
 # Helper to run the model
 MODEL, _ = initialize_model(convert_response_chain_to_str=False, no_memory=True)
 
+
 def predict(inputs: dict) -> dict:
     print(f"inputs: {inputs}")
-    return MODEL.invoke({"question": inputs["Question"], 
+    time.sleep(5)
+    return MODEL.invoke({"question": inputs["Question"],
                          "chat_history": []})
+
 
 # Evaluate the model
 experiment_results = evaluate(
-    predict, 
-    data=DATASET_NAME, # The data to predict and grade over
-    evaluators=[qa_evaluator, doc_evaluator, tool_evaluator], # The evaluators to score the results
-    experiment_prefix="april", # A prefix for your experiment names to easily identify them
+    predict,
+    data=DATASET_NAME,  # The data to predict and grade over
+    evaluators=[qa_evaluator, doc_evaluator, tool_evaluator],  # The evaluators to score the results
+    experiment_prefix="april",  # A prefix for your experiment names to easily identify them
 )
 
 # Save the results to a CSV file

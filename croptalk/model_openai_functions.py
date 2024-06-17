@@ -82,7 +82,8 @@ class OpenAIAgentModelFactory:
                     CropGuard uses cutting-edge AI to help crop insurance agents and farmers select
                     optimal crop insurance policies tailored to growers' unique risk profiles.
                     You provide accurate results based on retrieved docs.
-                    ALWAYS cite the relevant sources using this format : ( Document : title, page : page_id , url : link  )""",
+                    ALWAYS cite the relevant sources using this format : ( Document : title, page : page_id , 
+                    url : url#page=page_id  )""",
                 ),
                 MessagesPlaceholder(self.memory_key, optional=True),
                 ("human", f"{{{self.input_key}}}"),
@@ -118,9 +119,10 @@ class OpenAIAgentModelFactory:
                 memory=memory,
                 verbose=True,
                 max_iterations=10,
-                return_intermediate_steps=True, # we always want to return the intermediate steps to see them in the run trace
+                return_intermediate_steps=True,
+                # we always want to return the intermediate steps to see them in the run trace
             ).with_config(run_name="AgentExecutor")
-        
+
         if not convert_response_chain_to_str:
             # Skip the last step of converting the response to a string 
             # to have access to the chain as an object, i.e. retrieve the intermediate steps
@@ -196,5 +198,6 @@ def initialize_model(convert_response_chain_to_str=True, no_memory=False):
         output_key="output",
     ).get_model(convert_response_chain_to_str=convert_response_chain_to_str, no_memory=no_memory)
     return model, memory
+
 
 model, memory = initialize_model()
