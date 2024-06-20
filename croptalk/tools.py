@@ -334,16 +334,16 @@ def get_sob_endpoint(state_code: str, commodity_code: str, insurance_plan_code: 
     """
     This is a function used by a tool to gracefully make the SOB API call and manage the response.
     Args:
-        state_code:
-        commodity_code:
-        insurance_plan_code:
+        state_code: the code designating the state
+        commodity_code: the commodity code of the commodity to make the recommendation on
+        insurance_plan_code: the insurance plan code to make the recommendation on
 
     Returns:
-
+        requests.Response: an api response from the endpoint Get-SOB-recommender from the ds api
     """
 
-    # define the sob endpoint to call on
-    sob_endpoint = "http://dev.ds-api.cropguard.online/api/v1/ds/get-sob-recommender"
+    # use endpoint devine in env.share to get the the sob endpoint to call on
+    sob_endpoint = os.environ.get("API_ENDPOINT_GET_SOB_RECOMMENDER")
 
     # Get the bearer token from the environment variables
     headers = {
