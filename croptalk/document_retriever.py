@@ -85,7 +85,7 @@ class DocumentRetriever:
         """
         return [
             f"<doc"
-            f" id='{i+1}'"
+            f" id='{i + 1}'"
             f" title='{doc.properties['title']}'"
             f" page_id='{doc.properties['page_start']}'"
             f" doc_category='{doc.properties['doc_category']}'"
@@ -93,7 +93,7 @@ class DocumentRetriever:
             f" state='{doc.properties['state']}'"
             f" county='{doc.properties['county']}'"
             f" s3_key='{doc.properties['s3_key']}'"
-            f" url='https://croptalk-spoi.s3.us-east-2.amazonaws.com/{doc.properties['s3_key']}'"
+            f" url='https://croptalk-spoi.s3.us-east-2.amazonaws.com/{doc.properties['s3_key']}#page={doc.properties['page_start']}'"
             f">{doc.properties['content']}</doc>"
             for i, doc in enumerate(query_response.objects)
         ]
