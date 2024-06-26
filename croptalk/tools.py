@@ -299,6 +299,7 @@ def get_sob_recommendation(state_code: str,
 
     It is meant to recommend the best possible coverage level to the user based on the historical data for a ficen state
     , commodity and insurance plan.
+    Please provide the coverage level % that is the best and the corresponding score.
 
 
     It is NOT related to SP documents.
@@ -325,9 +326,13 @@ def get_sob_recommendation(state_code: str,
     df = df.set_index("coverage_level")
     df = df.sort_values("sob_score", ascending=False)
 
+    # Format the score
+    df["sob_score"] = df["sob_score"].round(2)
+    df["sob_score"] = (df["sob_score"]*100)
+
     json_data = df.to_json(orient='records')
 
-    return f"Best coverage level with sob score : {json_data}"
+    return f"Best coverage level with sob score : {json_data}. Each score is out of 100. Each coverage level is a percentage as well. Please specify both score and coverage level."
 
 
 def get_sob_endpoint(state_code: str, commodity_code: str, insurance_plan_code: str) -> requests.Response:
