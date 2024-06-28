@@ -289,6 +289,93 @@ def get_wfrp_commodities(reinsurance_yr: str, state_code: str, county_code: str)
         print("API call failed with status code:", response.status_code)
         return None
 
+@tool("get-SOB-recommendation")
+def get_sob_recommendation(state_code: str,
+                    commodity_code: str,
+                    insurance_plan_code: str) -> pd.DataFrame:
+    """
+    This tool's sole purpose is to find the Summary of Business (SOB) recommendation score from the recommendation system.
+    The recommendation system provides a score based on historical data for a given commodity and insurance plan.
+
+    It is meant to recommend the best possible coverage level to the user based on the historical data for a given state
+    , commodity and insurance plan.
+    The score is based on which coverage level yields the best cost to grower, roi and percentage of liability
+    indemnified for that commodity and insurance plan in the state in question.
+
+    Please provide the coverage level % that is the best and the corresponding score based on historical.
+
+    It is NOT related to SP documents.
+
+    To use this tool, you must provide all three arguments [state_code,  commodity_code and insurance_plan_code]
+
+    Args:
+        state_code (str): state code, ex : "06" for California
+        commodity_code: (str) : commodity code, ex : "0089" for WFRP
+        insurance_plan_code: (str) : insurance_plan code, ex : "90" for WFRP
+
+    Returns: str
+    """
+
+    response = get_sob_endpoint(state_code, commodity_code, insurance_plan_code)
+
+    # Convert the repsonse to a dictionary
+    df = pd.DataFrame.from_records(response.json())
+
+    # Filter on columns to keep
+    df = df.loc[:, ["coverage_level", "sob_score"]].copy()
+
+    # Set converage level as index
+    df = df.set_index("coverage_level")
+    df = df.sort_values("sob_score", ascending=False)
+
+    # Format the score
+    df["sob_score"] = df["sob_score"].round(2)
+    df["sob_score"] = (df["sob_score"]*100)
+
+    json_data = df.to_json(orient='records')
+
+    return f"Best coverage level with sob score : {json_data}. Each score is out of 100. Each coverage level is a percentage as well. Please specify both score and coverage level."
+
+
+def get_sob_endpoint(state_code: str, commodity_code: str, insurance_plan_code: str) -> requests.Response:
+    """
+    This is a function used by a tool to gracefully make the SOB API call and manage the response.
+    Args:
+        state_code: the code designating the state
+        commodity_code: the commodity code of the commodity to make the recommendation on
+        insurance_plan_code: the insurance plan code to make the recommendation on
+
+    Returns:
+        requests.Response: an api response from the endpoint Get-SOB-recommender from the ds api
+    """
+
+    # use endpoint devine in env.share to get the the sob endpoint to call on
+    sob_endpoint = os.environ.get("API_ENDPOINT_GET_SOB_RECOMMENDER")
+
+    # Get the bearer token from the environment variables
+    headers = {
+        'Authorization': f'Bearer {os.environ.get("DS_API_KEY")}'  # or the appropriate header name for your API
+    }
+
+    # Define que parameters to call
+    params = {
+        "state_code": state_code,
+        "commodity_code": commodity_code,
+        "insurance_plan_code": insurance_plan_code,
+        "disable_auth": "true",
+    }
+
+    # Call the endpoint
+    response = requests.get(sob_endpoint, headers=headers, params=params)
+
+    if response.status_code == 200:
+        print("API call successful")
+        return response
+
+    else:
+        print("API call failed with status code:", response.status_code)
+        return None
+
 
 def get_sob_sql_query_examples() -> List[Dict]:
     return [
@@ -382,7 +469,7 @@ full_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-TOOLS = [get_sob_metrics_sql_agent, get_wfrp_commodities, get_sp_document]
+TOOLS = [get_sob_metrics_sql_agent, get_wfrp_commodities, get_sp_document, get_sob_recommendation]
 RENDERED_TOOLS = render_text_description(TOOLS)
 
 TOOL_PROMPT = f"""You are an assistant that has access to the following set of tools. 
