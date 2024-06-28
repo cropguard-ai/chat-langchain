@@ -295,12 +295,14 @@ def get_sob_recommendation(state_code: str,
                     insurance_plan_code: str) -> pd.DataFrame:
     """
     This tool's sole purpose is to find the Summary of Business (SOB) recommendation score from the recommendation system.
-    The recommendation system provide a score based on historical data of a given commodity and insurance plan and commodity.
+    The recommendation system provides a score based on historical data for a given commodity and insurance plan.
 
-    It is meant to recommend the best possible coverage level to the user based on the historical data for a ficen state
+    It is meant to recommend the best possible coverage level to the user based on the historical data for a given state
     , commodity and insurance plan.
-    Please provide the coverage level % that is the best and the corresponding score.
+    The score is based on which coverage level yields the best cost to grower, roi and percentage of liability
+    indemnified for that commodity and insurance plan in the state in question.
 
+    Please provide the coverage level % that is the best and the corresponding score based on historical.
 
     It is NOT related to SP documents.
 
